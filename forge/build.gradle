@@ -1,0 +1,42 @@
+plugins {
+    id 'java'
+    id 'multiloader-loader'
+    id 'net.minecraftforge.gradle' version '6.0.24'
+    // 1. Add the Mixin Gradle plugin here if not already applied globally
+    id 'org.spongepowered.mixin' version '0.7.+'
+}
+
+minecraft {
+    mappings channel: 'official', version: minecraft_version
+}
+
+// FIX HERE: Configure the Mixin engine to output using official mappings
+mixin {
+    // Adds the refmap configurations automatically
+    add sourceSets.main, "netron.refmap.json"
+    config "netron.mixins.json"
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}"
+
+    implementation project(path: ':common', configuration: 'commonJava')
+    implementation project(path: ':common', configuration: 'commonResources')
+
+    // Use the official forge-compatible mixin annotation processor
+    annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
+}
+
+tasks.named('jar', Jar) {
+    manifest {
+        attributes([
+                "Specification-Title"     : "Netron",
+                "Specification-Vendor"    : "svteam",
+                "Specification-Version"   : "1",
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : project.version,
+                "Implementation-Vendor"   : "svteam",
+                "MixinConfigs"            : "netron.mixins.json"
+        ])
+    }
+}

@@ -1,0 +1,48 @@
+pluginManagement {
+    repositories {
+        maven { url = "https://maven.architectury.dev/" }
+        maven { url = "https://maven.minecraftforge.net/" }
+        maven { url = "https://maven.fabricmc.net/" } // Added explicitly for global resolution
+        gradlePluginPortal()
+        mavenCentral()
+
+        maven {
+            name = 'Mojang'
+            url = uri('https://libraries.minecraft.net/')
+        }
+
+        // Broaden the filter so Loom can fetch all transient/nested mod libraries safely
+        exclusiveContent {
+            forRepository {
+                maven { name = 'Fabric'; url = uri('https://maven.fabricmc.net') }
+            }
+            filter {
+                includeGroupAndSubgroups('net.fabricmc')
+                includeGroup('fabric-loom')
+                includeGroupAndSubgroups('net.fabricmc.fabric-api')
+            }
+        }
+
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = 'Forge'
+                    url = uri('https://maven.minecraftforge.net')
+                }
+            }
+            filter {
+                includeGroupAndSubgroups('net.minecraftforge')
+            }
+        }
+    }
+}
+
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
+}
+
+rootProject.name = 'Netron'
+include('common')
+include('fabric')
+include('neoforge')
+include('forge')

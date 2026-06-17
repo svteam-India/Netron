@@ -1,0 +1,40 @@
+plugins {
+    id 'net.neoforged.moddev'
+}
+configurations.configureEach {
+    attributes {
+        // Disables or satisfies the "preferred optimized for standard JVMs" requirement
+        attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, objects.named(TargetJvmEnvironment, TargetJvmEnvironment.STANDARD_JVM))
+    }
+}
+// 1. Configure NeoForge Mod Development Extension
+neoForge {
+    // This tells the plugin what version to process
+    version = "${neoforge_version}"
+
+    runs {
+        client {
+            client()
+        }
+        server {
+            server()
+        }
+    }
+}
+
+// 2. Clear out any manual sourceSet adjustments that clash with the plugin
+dependencies {
+    // We leave this empty of ":common" to prevent the variant matcher from running
+}
+
+// Manually wire the common project's compilation assets into the NeoForge pipeline
+tasks.named('compileJava', JavaCompile) {
+    // 1. Force Gradle to compile the common module before compiling neoforge
+    dependsOn project(':common').tasks.named('compileJava')
+
+    // 2. Feed the raw compiled class files directly into the compiler classpath
+    classpath += project(':common').sourceSets.main.output
+
+    // 3. Include the source code so your annotations and Mixins map properly
+    source project(':common').sourceSets.main.allSource
+}

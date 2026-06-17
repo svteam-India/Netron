@@ -1,0 +1,42 @@
+plugins {
+    id 'multiloader-loader'
+    id 'fabric-loom'
+}
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
+
+    // Use this clean line with transitive set to true inside its own closure
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}@jar"
+}
+
+// Add this block at the very bottom of fabric/build.gradle to explicitly disable documentation remapping
+loom {
+    // Force disables Loom from downloading or trying to map upstream javadocs/sources that crash the environment
+
+}
+loom {
+    def aw = project(':common').file("src/main/resources/${mod_id}.accesswidener")
+    if (aw.exists()) {
+        accessWidenerPath.set(aw)
+    }
+    mixin {
+        defaultRefmapName.set("${mod_id}.refmap.json")
+    }
+    runs {
+        client {
+            client()
+            setConfigName('Fabric Client')
+            ideConfigGenerated(true)
+            runDir('runs/client')
+        }
+        server {
+            server()
+            setConfigName('Fabric Server')
+            ideConfigGenerated(true)
+            runDir('runs/server')
+        }
+    }
+}
+

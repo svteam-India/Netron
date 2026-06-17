@@ -1,0 +1,54 @@
+plugins {
+    // see https://fabricmc.net/develop/ for new versions
+    id 'fabric-loom' version '1.13.3' apply false
+    // see https://projects.neoforged.net/neoforged/moddevgradle for new versions
+    id 'net.neoforged.moddev' version '0.1.110' apply false
+}
+
+subprojects {
+    tasks.withType(JavaCompile) {
+        // Force the Java compiler to output messages directly to console immediately
+        options.fork = true
+        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+    }
+}
+
+
+tasks.register('mergedJar', Jar) {
+    group = 'build'
+    description = 'Merges remapped subproject jars into a single fat JAR'
+
+    destinationDirectory = layout.buildDirectory.dir('libs')
+    archiveBaseName = 'Netron-Merged'
+    archiveVersion = project.version
+
+    // Depend on the remapped production jar tasks instead of simple compile
+    subprojects.each { subproject ->
+        if (subproject.name == 'fabric') {
+            dependsOn subproject.tasks.named('remapJar')
+        } else if (subproject.tasks.findByName('jar')) {
+            dependsOn subproject.tasks.named('jar')
+        }
+    }
+
+    // Extract and combine the contents of the completed production artifacts
+    subprojects.each { subproject ->
+        File jarFile
+        if (subproject.name == 'fabric') {
+            jarFile = subproject.tasks.named('remapJar').get().archiveFile.get().asFile
+        } else if (subproject.tasks.findByName('jar')) {
+            jarFile = subproject.tasks.named('jar').get().archiveFile.get().asFile
+        }
+
+        if (jarFile != null) {
+            from(zipTree(jarFile)) {
+                exclude 'META-INF/MANIFEST.MF'
+                exclude 'META-INF/*.SF'
+                exclude 'META-INF/*.DSA'
+                exclude 'META-INF/*.RSA'
+            }
+        }
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
