@@ -19,3 +19,15 @@ hs_err_pid*
 
 # Common working directory
 run
+
+# Fabric
+fabric/.gradle
+fabric/build
+
+# Forge
+forge/.gradle
+forge/build
+
+# NeoForge
+neoforge/.gradle
+neoforge/build
