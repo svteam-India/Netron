@@ -31,3 +31,7 @@ forge/build
 # NeoForge
 neoforge/.gradle
 neoforge/build
+
+# Common Code
+common/.gradle
+common/build
