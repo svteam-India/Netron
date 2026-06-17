@@ -44,4 +44,3 @@ jobs:
             build/libs/Netron-Merged-${{ steps.get_version.outputs.version }}.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
